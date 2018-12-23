@@ -84,35 +84,28 @@ CREATE TRIGGER ajoutMembreActifs
 
 CREATE OR REPLACE FUNCTION updateGrade() RETURNS trigger as $$
     DECLARE
-        cursUsers CURSOR FOR SELECT profil.nombre_points, profil.id_personne FROM profil GROUP BY profil.id_personne;
         cursGrade CURSOR FOR SELECT grade.nb_points_necessaires, grade.id_grade FROM grade GROUP BY grade.id_grade;
-        userNbPoints int;
-        userId int;
         gradePoints int;
         gradeId int;
+        userNbPoints int;
     BEGIN
-    OPEN cursUsers;
-        LOOP
-            FETCH cursUsers INTO userNbPoints, userId;
-            EXIT WHEN NOT FOUND;
-                OPEN cursGrade;
-                    LOOP
-                        FETCH cursGrade INTO gradePoints, gradeId;
-                        EXIT WHEN NOT FOUND;
-                        IF userNbPoints >= gradePoints THEN
-                            INSERT INTO grade_obtenu VALUES (userId, gradeId, now());
-                            RAISE INFO 'USER % UNLOCKED GRADE %', userId, gradeId;
-                        END IF;
-                    END LOOP;
-                CLOSE cursGrade;
-        END LOOP;
-    CLOSE cursUsers;
+        OPEN cursGrade;
+            LOOP
+                FETCH cursGrade INTO gradePoints, gradeId;
+                EXIT WHEN NOT FOUND;
+                    SELECT nombre_points FROM profil WHERE id_personne = NEW.id_personne INTO userNbPoints;
+                    IF userNbPoints >= gradePoints THEN
+                        INSERT INTO grade_obtenu VALUES (NEW.id_personne, gradeId, now());
+                        RAISE INFO 'USER % UNLOCKED GRADE %', NEW.id_personne, gradeId;
+                    END IF;
+            END LOOP;
+        CLOSE cursGrade;
     RETURN NEW;
 END;
 $$ language plpgsql; 
 
 CREATE TRIGGER gradeUpdate
-    AFTER UPDATE ON profil
+    AFTER UPDATE OF nombre_points ON profil 
     FOR EACH ROW
     EXECUTE PROCEDURE updateGrade();
 

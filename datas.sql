@@ -20,11 +20,11 @@ INSERT INTO lieu(id_personne, nom_lieu, positionX, positionY, nom_rue, nom_ville
 (1, 'Arc de Triomphe', 1.20, 1.20, 'Av', 'Paris', '75008', 14, 'N/A', 'Trc de Ariomphe', 100);
 
 /* A faire pour tester les lieux */
-UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 2 AND id_lieu = 1;
-UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 3 AND id_lieu = 1;
+UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 2 AND id_lieu = 8;
+UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 3 AND id_lieu = 8;
 
 /* Grade */
-INSERT INTO grade(nom_grade, logo_grade, nb_points_necessaires) VALUES ('Me Larcheur', 'N\A', 100);
+INSERT INTO grade(nom_grade, logo_grade, nb_points_necessaires) VALUES ('Le test', 'N\A', 100);
 
 /* Pour activer le Trigger Grade */
 UPDATE profil SET nombre_points = 200 WHERE id_personne = 1; 
