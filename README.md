@@ -435,7 +435,7 @@ UPDATE profil SET nombre_points = 200 WHERE id_personne = 1;
 
 Logiquement, le terminal retourne :
 
-INFO: USER 1 UNLOCKED GRADE 1
+    INFO: USER 1 UNLOCKED GRADE 1
 
 #### Maintenant il faut bien trier les lieux
 
@@ -449,12 +449,12 @@ INSERT INTO note VALUES(3, 1, 7);
 
 Exemple d'output :
 
-INSERT INTO note VALUES(1, 1, 15);
-INFO: LA MOYENNE DE 1 EST DESORMAIS 15
-INSERT INTO note VALUES(2, 1, 14);
-INFO: LA MOYENNE DE 1 EST DESORMAIS 14.5
-INSERT INTO note VALUES(3, 1, 7);
-INFO: LA MOYENNE DE 1 EST DESORMAIS 12
+    INSERT INTO note VALUES(1, 1, 15);
+    INFO: LA MOYENNE DE 1 EST DESORMAIS 15
+    INSERT INTO note VALUES(2, 1, 14);
+    INFO: LA MOYENNE DE 1 EST DESORMAIS 14.5
+    INSERT INTO note VALUES(3, 1, 7);
+    INFO: LA MOYENNE DE 1 EST DESORMAIS 12
 
 #### Et on refait la même avec les photos :
 
@@ -474,3 +474,9 @@ INSERT INTO forum(id_personne, id_lieu,contenu_msg, date_msg) VALUES (1, 1, 'Sal
 ```
 
 ## La Normalisation
+
+Pour notre base de données, nous avons pu la mettre sous forme de 3ème forme normale, c’est-à-dire qu’on l’a passée d’abord en 1ère forme normale afin que tous les attributs de chaque relation de la base de données aient **une valeur atomique et constante dans le temps**, sachant qu’ils ne peuvent désigner une donnée composée.
+Puis on l’a passée en 2ème forme normale pour avoir des relations en 1ère forme normale dont **chaque attribut non-clé dépend totalement et non partiellement de la clé primaire**.
+Enfin, nous avons mis notre base de données à la 3ème forme normale, qui vise à éliminer les redondances. Ainsi, les relations de notre base de données sont en 2ème forme normale et **tout attribut non-clé de ces relations ne peuvent dépendre d’un attribut non-clé**.
+
+_Les schémas de normalisation sont disponibles en dessous des tables_
