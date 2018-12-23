@@ -1,7 +1,9 @@
 # Documentation
-Bienvenue sur ce projet de BDD avancée, traitant de la normalisation. 
+
+Bienvenue sur ce projet de BDD avancée, traitant de la normalisation.
 Le but du projet était de produire une base de donnée afin d'aider un groupe de projet tutoré à créer une sorte de Pokémon GO pour touriste. (C'est la raison pour laquelle nous appelerons ce projet PPGO : _Presque Pokémon Go_)
-![MCD de notre Table](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/bdd.PNG)
+![MCD de notre Base](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/bdd.PNG)
+
 _MCD de notre BDD : **NB** Il manque la table note photo cette dernière est de la même architecture que la table note_
 
 ## Initialisation de la BDD
@@ -9,8 +11,10 @@ _MCD de notre BDD : **NB** Il manque la table note photo cette dernière est de 
 ### 1 - Création des Tables
 
 #### Table Profil :
+
 Tous les utilisateurs créés et ayant accès à l'application.
-~~~~sql    
+
+```sql
     CREATE TABLE profil (
     id_personne serial NOT NULL PRIMARY KEY,
     mot_de_passe text NOT NULL,
@@ -25,11 +29,16 @@ Tous les utilisateurs créés et ayant accès à l'application.
     compte_verifié int DEFAULT 0,
     compte_actif int DEFAULT 1,
     date_derniere_connexion DATE DEFAULT current_timestamp
-    );  
-~~~~
+    );
+```
+
+![Schéma de Normalisation de la table](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_profil.png)
+
 #### Table Lieu
+
 Tous les lieux recensés par l'application
-~~~~sql
+
+```sql
     CREATE TABLE lieu(
 	id_lieu serial NOT NULL PRIMARY KEY,
 	id_personne int NOT NULL REFERENCES profil(id_personne),
@@ -46,10 +55,13 @@ Tous les lieux recensés par l'application
 	verification_lieu integer NOT NULL DEFAULT 0, /*même trigger que validation_lieu*/
 	nb_point integer NOT NULL
 );
-~~~~
+```
+
 #### Table Validation Lieu
-Table permettant de stocker un lieu comme un lieu touristique, et permettant aussi aux personnes ayant déjà visité un lieu de valider la participation de quelqu'un. 
-~~~~sql
+
+Table permettant de stocker un lieu comme un lieu touristique, et permettant aussi aux personnes ayant déjà visité un lieu de valider la participation de quelqu'un.
+
+```sql
     CREATE TABLE validation_lieu(
     id_lieu serial NOT NULL,
     id_personne_visiteur int NOT NULL REFERENCES profil(id_personne),
@@ -57,10 +69,13 @@ Table permettant de stocker un lieu comme un lieu touristique, et permettant aus
     choix_verification int NOT NULL DEFAULT 0, /* Passer à 1 si nbVote > count(id_personne_verification)/2 */
 	CONSTRAINT pk_validation_lieu PRIMARY KEY (id_lieu, id_personne_visiteur, id_personne_verification)
 );
-~~~~
+```
+
 #### Table Photo
+
 Table contenant l'ensemble des photos des lieux de l'application, les mieux notées sont utilisées comme illustration du Lieu.
-~~~~sql
+
+```sql
     CREATE TABLE photo_lieu (
 	id_photo serial NOT NULL PRIMARY KEY,
     id_lieu int NOT NULL REFERENCES lieu(id_lieu),
@@ -68,50 +83,65 @@ Table contenant l'ensemble des photos des lieux de l'application, les mieux not�
     lien_photo text NOT NULL, /* Photo en base 64 */
     note_photo int NOT NULL
 );
-~~~~
+```
+
 #### Table note_photo
+
 Permet de recenser toutes les photos notées par les utilisateurs
-~~~~sql
+
+```sql
     CREATE TABLE note_photo(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
 	id_photo integer NOT NULL REFERENCES photo_lieu(id_photo),
 	note float,
 	CONSTRAINT pk_note_photo PRIMARY KEY (id_personne, id_photo)
 );
-~~~~
+```
+
 #### Table note
+
 Permet de recenser les notes donées par les utilisateurs à certains lieux
-~~~~sql
+
+```sql
     CREATE TABLE note(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
 	id_lieu integer NOT NULL REFERENCES profil(id_personne),
 	note float,
 	CONSTRAINT pk_note PRIMARY KEY (id_personne, id_lieu)
 );
-~~~~
+```
+
 #### Table Grade
+
 Permet de stocker tous les grades créés pour l'application.
-~~~~sql
+
+```sql
     CREATE TABLE grade(
 	id_grade serial NOT NULL PRIMARY KEY,
 	nom_grade varchar(256) NOT NULL,
 	logo_grade text NOT NULL,
 	nb_points_necessaires integer NOT NULL,
 );
-~~~~
+```
+
 #### Table Grade Obtenu
+
 Permet de savoir quelle personne détient quelle grade et depuis combien de temps.
-~~~~sql
+
+```sql
     CREATE TABLE grade_obtenu(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
 	id_grade integer NOT NULL REFERENCES grade(id_grade),
 	date_obtention date NOT NULL DEFAULT current_timestamp,
 	CONSTRAINT pk_grade_obtenu PRIMARY KEY (id_personne, id_grade)
 );
-~~~~
+```
+
 #### Table Forum
-Permet de stocker tous les messages postés par la communauté sur un lieu. 
-~~~~sql
+
+Permet de stocker tous les messages postés par la communauté sur un lieu.
+
+```sql
     CREATE TABLE forum(
 	id_message serial NOT NULL PRIMARY KEY,
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
@@ -119,14 +149,17 @@ Permet de stocker tous les messages postés par la communauté sur un lieu.
 	contenu_msg text NOT NULL,
 	date_msg date NOT NULL
 );
-~~~~
+```
 
 ### 2 - Création des fonctions et trigger
-#### Procédure passage_inactif (@return void)
-Cette fonction permet d'aller vérifier la table profil et **modifie tous les attributs compte_actif à 0 pour les personnes ayant une date de dernière connexion supérieure à 1 mois**, et inversement, c'est à dire remettre à 1 l'attribue pour les personnes s'étant connectées il y a un moins d'un mois. 
 
-Cette fonction n'est reliée à aucun trigger car elle doit être effectuée de manière récurente _(journalière ?)_ et ne peut donc pas dépendre d'un event sql mais d'une tâche cron. 
-~~~~sql
+#### Procédure passage_inactif (@return void)
+
+Cette fonction permet d'aller vérifier la table profil et **modifie tous les attributs compte_actif à 0 pour les personnes ayant une date de dernière connexion supérieure à 1 mois**, et inversement, c'est à dire remettre à 1 l'attribue pour les personnes s'étant connectées il y a un moins d'un mois.
+
+Cette fonction n'est reliée à aucun trigger car elle doit être effectuée de manière récurente _(journalière ?)_ et ne peut donc pas dépendre d'un event sql mais d'une tâche cron.
+
+```sql
     create or replace function passage_inactif() returns void as $$
     declare
         cursUser CURSOR FOR SELECT id_personne, date_derniere_connexion FROM profil;
@@ -149,23 +182,27 @@ Cette fonction n'est reliée à aucun trigger car elle doit être effectuée de 
         CLOSE cursUser;
     END;
 $$ language plpgsql;
-~~~~
+```
 
 #### Fonction Compteur_compte_actif (@return int)
-Cette fonction permet de **récupérer le nombre de comptes actifs**, elle est imbriquée dans une autre fonction qui sera présentée plus tard. 
+
+Cette fonction permet de **récupérer le nombre de comptes actifs**, elle est imbriquée dans une autre fonction qui sera présentée plus tard.
 
 _Cette fonction n'a pas vraiment lieu d'être algorithmiquement parlant, mais nous n'avions pas fait de BDD depuis longtemps_
-~~~~sql
+
+```sql
 create or replace function compteur_compte_actif() returns integer as $$
     BEGIN
         RETURN (SELECT count(id_personne) FROM profil WHERE compte_actif = 1);
     END;
 $$ language plpgsql;
-~~~~
+```
 
 #### Fonction verif_lieu (@return trigger)
+
 Cette fonction permet d'aller décompteur le nombre de fois qu'un lieu a été validé par la communauté, si le nombre de validation est supérieur à la moitié du nombe de comptes actifs _(récupéré par la fonction compteur_compte_actif())_ alors l'attribut **verification_lieu** de la table lieu est update à 1.
-~~~~sql
+
+```sql
 create or replace function verif_lieu() returns trigger as $$
     declare
         cursLieu CURSOR FOR SELECT id_lieu, count(id_lieu) FROM validation_lieu WHERE choix_verification = 1 GROUP BY id_lieu;
@@ -180,7 +217,7 @@ create or replace function verif_lieu() returns trigger as $$
                 EXIT WHEN NOT FOUND;
                 IF nbValidationLieu > (nbUserActif/2) THEN
                     UPDATE lieu SET verification_lieu = 1 WHERE id_lieu = id;
-                    RAISE INFO 'LE LIEU % A ETE VALIDE PAR LA COMMUNAUTE', id; 
+                    RAISE INFO 'LE LIEU % A ETE VALIDE PAR LA COMMUNAUTE', id;
                 END IF;
             END LOOP;
         CLOSE cursLieu;
@@ -193,17 +230,20 @@ CREATE TRIGGER validationLieu
     AFTER UPDATE ON validation_lieu
     FOR EACH ROW
     EXECUTE PROCEDURE verif_lieu();
-~~~~
+```
+
 #### Fonction ajoutMembresActifsCreationLieu (@return trigger)
+
 _C'est un peu long comme nom_
 
 Cette fonction, et son trigger permettent directement d'ajouter à la table verification_lieu **l'ensemble des comptes actifs et vérifiés** au moment T pour valider l'existence d'un lieu ou la véracité d'une visite.
-~~~~sql
+
+```sql
 CREATE OR REPLACE FUNCTION ajoutMembresActifsCreationLieu() RETURNS trigger AS $$
     DECLARE
         cursUsers CURSOR FOR SELECT profil.id_personne FROM profil WHERE compte_verifié = 1 AND compte_actif = 1;
         id INTEGER;
-        
+
     BEGIN
         OPEN cursUsers;
             LOOP
@@ -223,10 +263,13 @@ CREATE TRIGGER ajoutMembreActifs
     AFTER INSERT ON lieu
     FOR EACH ROW
     EXECUTE PROCEDURE ajoutMembresActifsCreationLieu();
-~~~~
+```
+
 #### Fonction Update Grade (@return trigger)
-Cette fonction permet 
-~~~~sql
+
+Cette fonction permet
+
+```sql
 CREATE OR REPLACE FUNCTION updateGrade() RETURNS trigger as $$
     DECLARE
         cursGrade CURSOR FOR SELECT grade.nb_points_necessaires, grade.id_grade FROM grade GROUP BY grade.id_grade;
@@ -247,19 +290,22 @@ CREATE OR REPLACE FUNCTION updateGrade() RETURNS trigger as $$
         CLOSE cursGrade;
     RETURN NEW;
 END;
-$$ language plpgsql;  
+$$ language plpgsql;
 
 /* Le trigger */
 CREATE TRIGGER gradeUpdate
-    AFTER UPDATE OF nombre_points ON profil 
+    AFTER UPDATE OF nombre_points ON profil
     FOR EACH ROW
     EXECUTE PROCEDURE updateGrade();
-~~~~
+```
+
 #### Fonction moyenne_lieu
-Cette fonction se charge d'aller dans la table note, et de faire une moyenne de toutes les notes d'un lieu puis d'en modifier l'attribut dans la table lieu. 
-~~~~sql
+
+Cette fonction se charge d'aller dans la table note, et de faire une moyenne de toutes les notes d'un lieu puis d'en modifier l'attribut dans la table lieu.
+
+```sql
 CREATE OR REPLACE FUNCTION moyenne_note() RETURNS TRIGGER as $$
-    DECLARE 
+    DECLARE
     idLieu int;
     moyenneLieu float;
 
@@ -277,12 +323,15 @@ CREATE TRIGGER noteUpdate
     AFTER INSERT ON note
     FOR EACH ROW
     EXECUTE PROCEDURE moyenne_note();
-~~~~
+```
+
 #### Fonction moyenne_photo
+
 Même fonction qu'au dessus, cette fois-ci pour les photos.
-~~~~sql
+
+```sql
 CREATE OR REPLACE FUNCTION moyenne_note_photo() RETURNS TRIGGER as $$
-    DECLARE 
+    DECLARE
     idPhoto int;
     moyennePhoto float;
 
@@ -300,41 +349,45 @@ CREATE TRIGGER notePhotoUpdate
     AFTER INSERT ON note_photo
     FOR EACH ROW
     EXECUTE PROCEDURE moyenne_note_photo();
-~~~~
+```
 
 ### 3 - Jeu de données pour les essais
+
 #### Parce qu'il faut bien des utilisateurs ...
 
-~~~~sql
-INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance, 
-avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES 
+```sql
+INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance,
+avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES
 ('123', 'JugurthaK', 'aaa@aaa.com', 'Kabeche', 'Jugurtha', '03-01-1996', 'aaa', '123', '123', '1', '1', '2018-11-20';
 
-INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance, 
-avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES 
+INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance,
+avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES
 ('124', 'Maumau', 'aaa@aaa.com', 'Duhamel', 'Maureen', '05-05-1999', 'aaa', '123', '123', '1', '1', now());
 
-INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance, 
-avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES 
+INSERT INTO profil(mot_de_passe, pseudo, email, nom_personne, prenom_personne, date_naissance,
+avatar, distance_parcourue, nombre_points, compte_verifié, compte_actif, date_derniere_connexion) VALUES
 ('125', 'Sywave', 'aaa@aaa.com', 'Synave', 'Rémi', '26-11-1982', 'aaa', '123', '123', '1', '0', now());
-~~~~
+```
 
-Tous les utilisateurs sont créés à la date du jour, si on execute la procédure 
-~~~~sql
+Tous les utilisateurs sont créés à la date du jour, si on execute la procédure
+
+```sql
 SELECT passage_inactif();
-~~~~
+```
+
 Seul Jugurtha passe en compte inactif car sa date de dernière connexion est supérieure à 1 mois.
 
-#### Et il faut bien des lieux 
+#### Et il faut bien des lieux
 
-~~~~sql
+```sql
 INSERT INTO lieu(id_personne, nom_lieu, positionX, positionY, nom_rue, nom_ville, code_postal, note_lieu, photo_lieu, description_lieu, nb_point) VALUES
 (1, 'Test', 1.20, 1.20, 'Test', 'Calais', '62000', 12, 'N/A', 'Description Test', 100);
 INSERT INTO lieu(id_personne, nom_lieu, positionX, positionY, nom_rue, nom_ville, code_postal, note_lieu, photo_lieu, description_lieu, nb_point) VALUES
 (1, 'Tour Eiffel', 1.20, 1.20, 'Champs de Mars', 'Paris', '75000', 15, 'N/A', 'La Eour Tiffel', 100);
 INSERT INTO lieu(id_personne, nom_lieu, positionX, positionY, nom_rue, nom_ville, code_postal, note_lieu, photo_lieu, description_lieu, nb_point) VALUES
 (1, 'Arc de Triomphe', 1.20, 1.20, 'Av', 'Paris', '75008', 14, 'N/A', 'Trc de Ariomphe', 100);
-~~~~
+```
+
 Lors de l'insertion de ces 3 lieux, il y a logiquement un RAISE INFO qui affiche des données de la façon suivante :
 
     INFO:  LA PERSONNE ID 2 A ETE AJOUTEE A LA VERIFICATION DU LIEU 1
@@ -343,63 +396,65 @@ Lors de l'insertion de ces 3 lieux, il y a logiquement un RAISE INFO qui affiche
 
 #### Et faut quand même faire en sorte de pouvoir valider les lieux
 
-~~~~sql
+```sql
 UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 2 AND id_lieu = 1;
 UPDATE validation_lieu SET choix_verification = 1 WHERE id_personne_verification = 3 AND id_lieu = 1;
-~~~~
+```
+
 Et normalement, on obtient ça :
 
     INFO:  LE LIEU 1 A ETE VALIDE PAR LA COMMUNAUTE
 
 #### Et la gamification ?
 
-~~~~sql
+```sql
 INSERT INTO grade(nom_grade, logo_grade, nb_points_necessaires) VALUES ('Me Larcheur', 'N\A', 100);
-~~~~
+```
 
 Et pour activer le trigger :
-~~~~sql
-UPDATE profil SET nombre_points = 200 WHERE id_personne = 1; 
-~~~~
 
-Logiquement, le terminal retourne : 
-    
-    INFO:  USER 1 UNLOCKED GRADE 1
+```sql
+UPDATE profil SET nombre_points = 200 WHERE id_personne = 1;
+```
 
-#### Maintenant il faut bien trier les lieux 
-Il est préférable de mettre les lignes 1 à 1 pour voir la moyenne ce mettre à jour. 
-~~~~sql
+Logiquement, le terminal retourne :
+  
+ INFO: USER 1 UNLOCKED GRADE 1
+
+#### Maintenant il faut bien trier les lieux
+
+Il est préférable de mettre les lignes 1 à 1 pour voir la moyenne ce mettre à jour.
+
+```sql
 INSERT INTO note VALUES(1, 1, 15);
 INSERT INTO note VALUES(2, 1, 14);
 INSERT INTO note VALUES(3, 1, 7);
-~~~~
+```
 
-Exemple d'output : 
-    
-    INSERT INTO note VALUES(1, 1, 15);
-    INFO:  LA MOYENNE DE 1 EST DESORMAIS 15
-    INSERT INTO note VALUES(2, 1, 14);
-    INFO:  LA MOYENNE DE 1 EST DESORMAIS 14.5
-    INSERT INTO note VALUES(3, 1, 7);
-    INFO:  LA MOYENNE DE 1 EST DESORMAIS 12
+Exemple d'output :
+  
+ INSERT INTO note VALUES(1, 1, 15);
+INFO: LA MOYENNE DE 1 EST DESORMAIS 15
+INSERT INTO note VALUES(2, 1, 14);
+INFO: LA MOYENNE DE 1 EST DESORMAIS 14.5
+INSERT INTO note VALUES(3, 1, 7);
+INFO: LA MOYENNE DE 1 EST DESORMAIS 12
 
 #### Et on refait la même avec les photos :
 
-~~~~sql
+```sql
 INSERT INTO photo_lieu(id_lieu, id_personne, lien_photo, note_photo) VALUES (1, 1, 'N/A', 0);
-~~~~
+```
 
-~~~~sql
+```sql
 INSERT INTO note_photo VALUES (1, 1, 15);
 INSERT INTO note_photo VALUES (2, 1, 7);
-~~~~
+```
 
 #### Et pour finir, on fait communiquer tout ça
 
-~~~~sql
+```sql
 INSERT INTO forum(id_personne, id_lieu,contenu_msg, date_msg) VALUES (1, 1, 'Salut à tous les amis', now());
-~~~~
-
-
+```
 
 ## La Normalisation
