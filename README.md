@@ -32,7 +32,7 @@ Tous les utilisateurs créés et ayant accès à l'application.
     );
 ```
 
-![Schéma de Normalisation de la table](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_profil.png)
+![Schéma de Normalisation de la table profil](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_profil.png)
 
 #### Table Lieu
 
@@ -57,6 +57,8 @@ Tous les lieux recensés par l'application
 );
 ```
 
+![Schéma de Normalisation de la table lieu](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_lieu.png)
+
 #### Table Validation Lieu
 
 Table permettant de stocker un lieu comme un lieu touristique, et permettant aussi aux personnes ayant déjà visité un lieu de valider la participation de quelqu'un.
@@ -70,6 +72,8 @@ Table permettant de stocker un lieu comme un lieu touristique, et permettant aus
 	CONSTRAINT pk_validation_lieu PRIMARY KEY (id_lieu, id_personne_visiteur, id_personne_verification)
 );
 ```
+
+![Schéma de Normalisation de la table validation_lieu](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_validation_lieu.png)
 
 #### Table Photo
 
@@ -85,6 +89,8 @@ Table contenant l'ensemble des photos des lieux de l'application, les mieux not�
 );
 ```
 
+![Schéma de Normalisation de la table photo](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_photo.png)
+
 #### Table note_photo
 
 Permet de recenser toutes les photos notées par les utilisateurs
@@ -97,6 +103,8 @@ Permet de recenser toutes les photos notées par les utilisateurs
 	CONSTRAINT pk_note_photo PRIMARY KEY (id_personne, id_photo)
 );
 ```
+
+![Schéma de Normalisation de la table note_photo](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_note_photo.png)
 
 #### Table note
 
@@ -111,6 +119,8 @@ Permet de recenser les notes donées par les utilisateurs à certains lieux
 );
 ```
 
+![Schéma de Normalisation de la table note](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_note.png)
+
 #### Table Grade
 
 Permet de stocker tous les grades créés pour l'application.
@@ -123,6 +133,8 @@ Permet de stocker tous les grades créés pour l'application.
 	nb_points_necessaires integer NOT NULL,
 );
 ```
+
+![Schéma de Normalisation de la table grade](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_grade.png)
 
 #### Table Grade Obtenu
 
@@ -137,6 +149,8 @@ Permet de savoir quelle personne détient quelle grade et depuis combien de temp
 );
 ```
 
+![Schéma de Normalisation de la table grade_obtenu](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_grade_obtenu.png)
+
 #### Table Forum
 
 Permet de stocker tous les messages postés par la communauté sur un lieu.
@@ -150,6 +164,8 @@ Permet de stocker tous les messages postés par la communauté sur un lieu.
 	date_msg date NOT NULL
 );
 ```
+
+![Schéma de Normalisation de la table forum](https://raw.githubusercontent.com/JugurthaK/bdd/master/img/table_forum.png)
 
 ### 2 - Création des fonctions et trigger
 
@@ -418,8 +434,8 @@ UPDATE profil SET nombre_points = 200 WHERE id_personne = 1;
 ```
 
 Logiquement, le terminal retourne :
-  
- INFO: USER 1 UNLOCKED GRADE 1
+
+INFO: USER 1 UNLOCKED GRADE 1
 
 #### Maintenant il faut bien trier les lieux
 
@@ -432,8 +448,8 @@ INSERT INTO note VALUES(3, 1, 7);
 ```
 
 Exemple d'output :
-  
- INSERT INTO note VALUES(1, 1, 15);
+
+INSERT INTO note VALUES(1, 1, 15);
 INFO: LA MOYENNE DE 1 EST DESORMAIS 15
 INSERT INTO note VALUES(2, 1, 14);
 INFO: LA MOYENNE DE 1 EST DESORMAIS 14.5
