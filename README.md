@@ -8,8 +8,8 @@ _MCD de notre BDD_
 
 ### 1 - Création des Tables
 
-#### Table Profil
-
+#### Table Profil :
+Tous les utilisateurs créés et ayant accès à l'application.
 ~~~~sql    
     CREATE TABLE profil (
     id_personne serial NOT NULL PRIMARY KEY,
@@ -27,6 +27,8 @@ _MCD de notre BDD_
     date_derniere_connexion DATE DEFAULT current_timestamp
     );  
 ~~~~
+#### Table Lieu
+Tous les lieux recensés par l'application
 ~~~~sql
     CREATE TABLE lieu(
 	id_lieu serial NOT NULL PRIMARY KEY,
@@ -45,6 +47,8 @@ _MCD de notre BDD_
 	nb_point integer NOT NULL
 );
 ~~~~
+#### Table Validation Lieu
+Table permettant de stocker un lieu comme un lieu touristique, et permettant aussi aux personnes ayant déjà visité un lieu de valider la participation de quelqu'un. 
 ~~~~sql
     CREATE TABLE validation_lieu(
     id_lieu serial NOT NULL,
@@ -54,6 +58,8 @@ _MCD de notre BDD_
 	CONSTRAINT pk_validation_lieu PRIMARY KEY (id_lieu, id_personne_visiteur, id_personne_verification)
 );
 ~~~~
+#### Table Photo
+Table contenant l'ensemble des photos des lieux de l'application, les mieux notées sont utilisées comme illustration du Lieu.
 ~~~~sql
     CREATE TABLE photo_lieu (
 	id_photo serial NOT NULL PRIMARY KEY,
@@ -63,6 +69,8 @@ _MCD de notre BDD_
     note_photo int NOT NULL
 );
 ~~~~
+#### Table note_photo
+Permet de recenser toutes les photos notées par les utilisateurs
 ~~~~sql
     CREATE TABLE note_photo(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
@@ -71,6 +79,8 @@ _MCD de notre BDD_
 	CONSTRAINT pk_note_photo PRIMARY KEY (id_personne, id_photo)
 );
 ~~~~
+#### Table note
+Permet de recenser les notes donées par les utilisateurs à certains lieux
 ~~~~sql
     CREATE TABLE note(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
@@ -79,6 +89,8 @@ _MCD de notre BDD_
 	CONSTRAINT pk_note PRIMARY KEY (id_personne, id_lieu)
 );
 ~~~~
+#### Table Grade
+Permet de stocker tous les grades créés pour l'application.
 ~~~~sql
     CREATE TABLE grade(
 	id_grade serial NOT NULL PRIMARY KEY,
@@ -86,8 +98,9 @@ _MCD de notre BDD_
 	logo_grade text NOT NULL,
 	nb_points_necessaires integer NOT NULL,
 );
-
 ~~~~
+#### Table Grade Obtenu
+Permet de savoir quelle personne détient quelle grade et depuis combien de temps.
 ~~~~sql
     CREATE TABLE grade_obtenu(
 	id_personne integer NOT NULL REFERENCES profil(id_personne),
@@ -105,4 +118,8 @@ _MCD de notre BDD_
 	date_msg date NOT NULL
 );
 ~~~~
+
+### 2 - Création des fonctions et trigger
+
+
 ## La Normalisation
