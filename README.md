@@ -1,7 +1,7 @@
 # Documentation
 Bienvenue sur ce projet de BDD avancée, traitant de la normalisation. 
 Le but du projet était de produire une base de donnée afin d'aider un groupe de projet tutoré à créer une sorte de Pokémon GO pour touriste. (C'est la raison pour laquelle nous appelerons ce projet PPGO : _Presque Pokémon Go_)
-![MCD de notre Table](./bdd.png)
+![MCD de notre Table](img/bdd.png)
 
 ## Initialisation de la BDD
 
